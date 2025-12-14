@@ -322,19 +322,32 @@ function svgToDataUrl(svg: string): string {
 
 // Convert SVG to PNG using canvas
 async function svgToPng(svg: string, size: number = 512): Promise<string> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image()
     const canvas = document.createElement('canvas')
     canvas.width = size
     canvas.height = size
-    const ctx = canvas.getContext('2d')!
+    const ctx = canvas.getContext('2d')
+
+    if (!ctx) {
+      reject(new Error('Could not get canvas context'))
+      return
+    }
 
     img.onload = () => {
       ctx.drawImage(img, 0, 0, size, size)
       resolve(canvas.toDataURL('image/png'))
     }
 
-    img.src = svgToDataUrl(svg)
+    img.onerror = (err) => {
+      console.error('Image load error:', err)
+      // Fallback: return the SVG data URL directly
+      resolve(svgToDataUrl(svg))
+    }
+
+    // Use blob URL for better compatibility
+    const blob = new Blob([svg], { type: 'image/svg+xml' })
+    img.src = URL.createObjectURL(blob)
   })
 }
 
