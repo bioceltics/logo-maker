@@ -213,7 +213,6 @@ function generateSVGLogo(
   const font = FONTS[style]
   const bgColor = primaryColor
   const fgColor = getContrastColor(primaryColor)
-  const accentColor = secondaryColor
 
   const size = 512
   const padding = 60
@@ -229,82 +228,62 @@ function generateSVGLogo(
 
   const displayName = brandName.substring(0, 12)
 
+  // Calculate scale factor for icon (from 24x24 viewBox to desired size)
+  const getIconGroup = (x: number, y: number, iconSz: number) => {
+    const scale = iconSz / 24
+    return `<g transform="translate(${x}, ${y}) scale(${scale})" fill="${fgColor}" stroke="${fgColor}">${iconPath}</g>`
+  }
+
   switch (layout) {
     case 'icon-top':
       iconSize = innerSize * 0.45
-      iconY = padding + iconSize / 2 + 20
+      iconY = padding + 20
       textY = size - padding - 50
-      iconSvg = `<g transform="translate(${size / 2 - iconSize / 2}, ${iconY - iconSize / 2})">
-        <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${fgColor}" stroke="${fgColor}">
-          ${iconPath}
-        </svg>
-      </g>`
-      textSvg = `<text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="${font.name}" font-weight="${font.weight}" font-size="48" fill="${fgColor}">${displayName}</text>`
+      iconSvg = getIconGroup(size / 2 - iconSize / 2, iconY, iconSize)
+      textSvg = `<text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="${font.weight}" font-size="48" fill="${fgColor}">${displayName}</text>`
       break
 
     case 'icon-left':
       iconSize = innerSize * 0.35
-      iconX = padding + iconSize / 2 + 20
-      textX = iconX + iconSize / 2 + 30
-      iconY = size / 2
-      iconSvg = `<g transform="translate(${iconX - iconSize / 2}, ${iconY - iconSize / 2})">
-        <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${fgColor}" stroke="${fgColor}">
-          ${iconPath}
-        </svg>
-      </g>`
-      textSvg = `<text x="${textX}" y="${size / 2 + 15}" text-anchor="start" font-family="${font.name}" font-weight="${font.weight}" font-size="52" fill="${fgColor}">${displayName}</text>`
+      iconX = padding + 20
+      textX = iconX + iconSize + 30
+      iconY = size / 2 - iconSize / 2
+      iconSvg = getIconGroup(iconX, iconY, iconSize)
+      textSvg = `<text x="${textX}" y="${size / 2 + 15}" text-anchor="start" font-family="Arial, sans-serif" font-weight="${font.weight}" font-size="52" fill="${fgColor}">${displayName}</text>`
       break
 
     case 'icon-right':
       iconSize = innerSize * 0.35
-      iconX = size - padding - iconSize / 2 - 20
+      iconX = size - padding - iconSize - 20
       textX = padding + 40
-      iconY = size / 2
-      iconSvg = `<g transform="translate(${iconX - iconSize / 2}, ${iconY - iconSize / 2})">
-        <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${fgColor}" stroke="${fgColor}">
-          ${iconPath}
-        </svg>
-      </g>`
-      textSvg = `<text x="${textX}" y="${size / 2 + 15}" text-anchor="start" font-family="${font.name}" font-weight="${font.weight}" font-size="52" fill="${fgColor}">${displayName}</text>`
+      iconY = size / 2 - iconSize / 2
+      iconSvg = getIconGroup(iconX, iconY, iconSize)
+      textSvg = `<text x="${textX}" y="${size / 2 + 15}" text-anchor="start" font-family="Arial, sans-serif" font-weight="${font.weight}" font-size="52" fill="${fgColor}">${displayName}</text>`
       break
 
     case 'icon-only':
       iconSize = innerSize * 0.6
-      iconY = size / 2
-      iconSvg = `<g transform="translate(${size / 2 - iconSize / 2}, ${iconY - iconSize / 2})">
-        <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${fgColor}" stroke="${fgColor}">
-          ${iconPath}
-        </svg>
-      </g>`
+      iconY = size / 2 - iconSize / 2
+      iconSvg = getIconGroup(size / 2 - iconSize / 2, iconY, iconSize)
       break
 
     case 'text-only':
       textY = size / 2 + 20
-      textSvg = `<text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="${font.name}" font-weight="${font.weight}" font-size="72" fill="${fgColor}">${displayName}</text>`
+      textSvg = `<text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="${font.weight}" font-size="72" fill="${fgColor}">${displayName}</text>`
       break
 
     case 'stacked':
       iconSize = innerSize * 0.35
-      iconY = size / 2 - 30
-      textY = size / 2 + iconSize / 2 + 30
-      iconSvg = `<g transform="translate(${size / 2 - iconSize / 2}, ${iconY - iconSize / 2})">
-        <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${fgColor}" stroke="${fgColor}">
-          ${iconPath}
-        </svg>
-      </g>`
-      textSvg = `<text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="${font.name}" font-weight="${font.weight}" font-size="42" fill="${fgColor}">${displayName}</text>`
+      iconY = size / 2 - iconSize / 2 - 40
+      textY = size / 2 + iconSize / 2 + 20
+      iconSvg = getIconGroup(size / 2 - iconSize / 2, iconY, iconSize)
+      textSvg = `<text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="${font.weight}" font-size="42" fill="${fgColor}">${displayName}</text>`
       break
   }
 
-  // Build complete SVG
+  // Build complete SVG - simplified for better canvas compatibility
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-    <defs>
-      <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:${lightenColor(bgColor, 10)};stop-opacity:1" />
-        <stop offset="100%" style="stop-color:${darkenColor(bgColor, 10)};stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="${size}" height="${size}" rx="80" fill="url(#bgGradient)"/>
+    <rect width="${size}" height="${size}" rx="80" fill="${bgColor}"/>
     ${iconSvg}
     ${textSvg}
   </svg>`
